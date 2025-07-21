@@ -47,8 +47,20 @@ function Login() {
         await setActive({ session: response.createdSessionId });
         router.push("/Blog");
       }
-    } catch (error: any) {
-      setError(error.errors[0]?.message || "Something happened");
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "errors" in error &&
+        Array.isArray((error as any).errors) &&
+        (error as any).errors[0]?.message
+      ) {
+        setError((error as any).errors[0].message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Something happened");
+      }
     }
   };
 

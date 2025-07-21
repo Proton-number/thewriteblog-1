@@ -63,26 +63,26 @@ export default function SignUpform() {
     try {
       // Validate form fields
       if (!firstName.trim()) {
-        throw new Error("First name is required");
+      throw new Error("First name is required");
       }
       if (!lastName.trim()) {
-        throw new Error("Last name is required");
+      throw new Error("Last name is required");
       }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        throw new Error("Please enter a valid email address");
+      throw new Error("Please enter a valid email address");
       }
       const passwordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
       if (!passwordRegex.test(password)) {
-        throw new Error(
-          "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)"
-        );
+      throw new Error(
+        "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)"
+      );
       }
 
       await signUp.create({
-        emailAddress: email,
-        password: password.trim(),
+      emailAddress: email,
+      password: password.trim(),
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -91,9 +91,10 @@ export default function SignUpform() {
       setPendingVerification(true);
       console.log("Sign-up successful, verification email sent");
       // router.push("/Blog") should NOT be here
-    } catch (err: any) {
+    } catch (err) {
+      const errorObj = err as { message?: string };
       console.error("Sign-up error:", err);
-      setError(err.message || "An error occurred during sign-up");
+      setError(errorObj.message || "An error occurred during sign-up");
     } finally {
       setIsLoading(false);
     }
@@ -123,22 +124,35 @@ export default function SignUpform() {
 
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
+      code: verificationCode,
       });
 
       if (completeSignUp.status === "complete") {
-        await setActive({ session: completeSignUp.createdSessionId });
+      await setActive({ session: completeSignUp.createdSessionId });
 
-        // Redirect to Blog page after successful verification
-        router.push("/Blog");
-        console.log("Account created successfully!");
+      // Redirect to Blog page after successful verification
+      router.push("/Blog");
+      console.log("Account created successfully!");
       } else {
-        console.error("Verification incomplete:", completeSignUp);
-        setError("Verification failed. Please try again.");
+      console.error("Verification incomplete:", completeSignUp);
+      setError("Verification failed. Please try again.");
       }
-    } catch (err: any) {
+    } catch (err) {
+      // Clerk errors are typically objects with an 'errors' array
+      if (
+      typeof err === "object" &&
+      err !== null &&
+      "errors" in err &&
+      Array.isArray((err as { errors: unknown }).errors)
+      ) {
+      const errors = (err as { errors: { message?: string }[] }).errors;
+      setError(errors[0]?.message || "Invalid verification code");
+      } else if (err instanceof Error) {
+      setError(err.message);
+      } else {
+      setError("Invalid verification code");
+      }
       console.error("Verification error:", err);
-      setError(err.errors?.[0]?.message || "Invalid verification code");
     } finally {
       setIsLoading(false);
     }
