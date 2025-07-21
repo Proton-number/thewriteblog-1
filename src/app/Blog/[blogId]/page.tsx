@@ -16,11 +16,11 @@ export async function generateMetadata({
   };
 }
 
-interface BlogPageProps {
+export default async function BlogPage({
+  params,
+}: {
   params: { blogId: string };
-}
-
-export default async function BlogPage({ params }: BlogPageProps) {
+}) {
   const blogId = params.blogId;
 
   await new Promise((resolve) => {
