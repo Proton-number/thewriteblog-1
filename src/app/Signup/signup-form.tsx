@@ -316,7 +316,7 @@ export default function SignUpform() {
             <div className="text-center mb-6">
               <h2 className="text-xl font-semibold mb-2">Verify your email</h2>
               <p className="text-sm text-gray-600">
-                We've sent a verification code to <strong>{email}</strong>
+                We&apos;ve sent a verification code to <strong>{email}</strong>
               </p>
             </div>
 
@@ -364,7 +364,7 @@ export default function SignUpform() {
 
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500 mb-2">
-                Didn't receive the code?
+                Didn&apos;t receive the code?
               </p>
               <Button
                 variant="ghost"

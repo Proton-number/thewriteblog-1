@@ -62,7 +62,7 @@ function Contact() {
 
   return (
     <div className="flex flex-col items-center min-h-screen pt-8 space-y-5 px-4 sm:px-8 md:px-12 lg:px-16">
-      <h1 className="font-bold text-6xl ">Let's Talk!</h1>
+      <h1 className="font-bold text-6xl ">Let&apos;s Talk!</h1>
       <p className="font-medium text-xl text-gray-600 max-w-2xl text-center">
         Got a project idea, want to collaborate, or just feel like saying hi?
         Drop a message below.
