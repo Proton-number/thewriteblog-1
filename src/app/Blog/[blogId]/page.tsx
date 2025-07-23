@@ -6,10 +6,9 @@ type PageProps = {
   params: {
     blogId: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default async function BlogPage({ params, searchParams }: PageProps) {
+export default async function BlogPage({ params }: PageProps) {
   const blogId = params.blogId;
 
   const query = `*[_type == "post" && slug.current == $slug][0] {
@@ -17,10 +16,19 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
     description,  
     slug, 
     projectUrl,
-    mainImage{asset->{_id, url}, alt}, 
+    mainImage {
+      asset -> {
+        _id, 
+        url
+      }, 
+      alt
+    }, 
     body,
-    author->{_id, name},
-    publishedAt,
+    author -> {
+      _id, 
+      name
+    },
+    publishedAt
   }`;
 
   let singlePost: Post | null = null;
