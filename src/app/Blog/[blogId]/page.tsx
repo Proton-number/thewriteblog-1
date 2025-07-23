@@ -2,12 +2,13 @@ import sanityClient from "../../../../Client";
 import SingleBlog from "./singleBlog";
 import type { Post } from "@/types/types";
 
-// This is what Next.js expects: destructure the params directly
-export default async function BlogPage({
-  params,
-}: {
-  params: { blogId: string };
-}) {
+type Props = {
+  params: {
+    blogId: string;
+  };
+};
+
+export default async function BlogPage({ params }: Props) {
   const blogId = params.blogId;
 
   const query = `*[_type == "post" && slug.current == $slug][0] {
