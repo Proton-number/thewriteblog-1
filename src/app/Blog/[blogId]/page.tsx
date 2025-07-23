@@ -1,18 +1,14 @@
+import sanityClient from "../../../../Client";
+import SingleBlog from "./singleBlog";
 import type { Metadata } from "next";
 import type { Post } from "@/types/types";
 
-import sanityClient from "../../../../Client";
-import SingleBlog from "./singleBlog";
-
-// Fix 1: Update this to use the expected prop shape for dynamic routes
-type BlogPageProps = {
-  params: { blogId: string };
-};
-
-// ✅ Fix 2: Now you're telling TypeScript exactly what it's expecting
+// ✅ Inline-typed params, no more BlogPageProps
 export async function generateMetadata({
   params,
-}: BlogPageProps): Promise<Metadata> {
+}: {
+  params: { blogId: string };
+}): Promise<Metadata> {
   const query = `*[_type == "post" && slug.current == $slug][0] { title }`;
   const post = await sanityClient.fetch(query, { slug: params.blogId });
 
@@ -21,10 +17,15 @@ export async function generateMetadata({
   };
 }
 
-// ✅ Fix 3: Apply the same typing to your page component
-export default async function BlogPage({ params }: BlogPageProps) {
+// ✅ Page component also uses inline-typed params
+export default async function BlogPage({
+  params,
+}: {
+  params: { blogId: string };
+}) {
   const blogId = params.blogId;
 
+  // Simulate delay (for loading effect/testing)
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const query = `*[_type == "post" && slug.current == $slug][0] {
