@@ -1,6 +1,6 @@
 import sanityClient from "../../../../Client";
 import SingleBlog from "./singleBlog";
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
 import type { Post } from "@/types/types";
 
 // ✅ Use inferred type — don't override with manual param types
