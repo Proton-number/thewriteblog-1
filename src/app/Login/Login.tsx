@@ -11,20 +11,6 @@ import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-interface ClerkError {
-  errors: { message: string }[];
-}
-
-function isClerkError(error: unknown): error is ClerkError {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "errors" in error &&
-    Array.isArray((error as ClerkError).errors) &&
-    typeof (error as ClerkError).errors[0]?.message === "string"
-  );
-}
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,13 +47,11 @@ function Login() {
         await setActive({ session: response.createdSessionId });
         router.push("/Blog");
       }
-    } catch (error: unknown) {
-      if (isClerkError(error)) {
-        setError(error.errors[0].message);
-      } else if (error instanceof Error) {
-        setError(error.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError("Something happened");
+        setError("An unknown error occurred.");
       }
     }
   };
@@ -81,7 +65,7 @@ function Login() {
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/Blog",
       });
-    } catch (err: unknown) {
+    } catch (err) {
       console.error("Google sign-up error:", err);
       setError("Failed to sign up with Google");
     }

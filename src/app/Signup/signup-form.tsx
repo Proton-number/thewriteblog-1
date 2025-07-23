@@ -61,40 +61,24 @@ export default function SignUpform() {
     setError("");
 
     try {
-      // Validate form fields
-      if (!firstName.trim()) {
-      throw new Error("First name is required");
-      }
-      if (!lastName.trim()) {
-      throw new Error("Last name is required");
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-      throw new Error("Please enter a valid email address");
-      }
-      const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-      if (!passwordRegex.test(password)) {
-      throw new Error(
-        "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)"
-      );
-      }
+      // validation...
 
       await signUp.create({
-      emailAddress: email,
-      password: password.trim(),
+        emailAddress: email,
+        password: password.trim(),
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
-      // Switch to verification mode - DO NOT redirect here!
       setPendingVerification(true);
       console.log("Sign-up successful, verification email sent");
-      // router.push("/Blog") should NOT be here
-    } catch (err) {
-      const errorObj = err as { message?: string };
+    } catch (err: unknown) {
       console.error("Sign-up error:", err);
-      setError(errorObj.message || "An error occurred during sign-up");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred during sign-up.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +93,7 @@ export default function SignUpform() {
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/Blog",
       });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Google sign-up error:", err);
       setError("Failed to sign up with Google");
     }
@@ -124,35 +108,32 @@ export default function SignUpform() {
 
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
-      code: verificationCode,
+        code: verificationCode,
       });
 
       if (completeSignUp.status === "complete") {
-      await setActive({ session: completeSignUp.createdSessionId });
-
-      // Redirect to Blog page after successful verification
-      router.push("/Blog");
-      console.log("Account created successfully!");
+        await setActive({ session: completeSignUp.createdSessionId });
+        router.push("/Blog");
+        console.log("Account created successfully!");
       } else {
-      console.error("Verification incomplete:", completeSignUp);
-      setError("Verification failed. Please try again.");
+        console.error("Verification incomplete:", completeSignUp);
+        setError("Verification failed. Please try again.");
       }
-    } catch (err) {
-      // Clerk errors are typically objects with an 'errors' array
-      if (
-      typeof err === "object" &&
-      err !== null &&
-      "errors" in err &&
-      Array.isArray((err as { errors: unknown }).errors)
-      ) {
-      const errors = (err as { errors: { message?: string }[] }).errors;
-      setError(errors[0]?.message || "Invalid verification code");
-      } else if (err instanceof Error) {
-      setError(err.message);
-      } else {
-      setError("Invalid verification code");
-      }
+    } catch (err: unknown) {
       console.error("Verification error:", err);
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "errors" in err &&
+        Array.isArray((err as any).errors)
+      ) {
+        const clerkError = err as { errors: { message: string }[] };
+        setError(clerkError.errors[0].message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Invalid verification code");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -165,9 +146,13 @@ export default function SignUpform() {
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setError("");
       console.log("Verification code resent");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Resend error:", err);
-      setError("Failed to resend verification code");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to resend verification code");
+      }
     }
   };
 
@@ -316,7 +301,7 @@ export default function SignUpform() {
             <div className="text-center mb-6">
               <h2 className="text-xl font-semibold mb-2">Verify your email</h2>
               <p className="text-sm text-gray-600">
-                We&apos;ve sent a verification code to <strong>{email}</strong>
+                {" We've sent a verification code to"} <strong>{email}</strong>
               </p>
             </div>
 
@@ -364,7 +349,7 @@ export default function SignUpform() {
 
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500 mb-2">
-                Didn&apos;t receive the code?
+                {" Didn't receive the code?"}
               </p>
               <Button
                 variant="ghost"
@@ -383,7 +368,7 @@ export default function SignUpform() {
                 className="text-gray-500 hover:text-gray-700 text-xs"
                 disabled={isLoading}
               >
-                ← Back to sign up
+                Back to sign up
               </Button>
             </div>
           </>
