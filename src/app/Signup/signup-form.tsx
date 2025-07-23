@@ -121,14 +121,17 @@ export default function SignUpform() {
       }
     } catch (err: unknown) {
       console.error("Verification error:", err);
+
       if (
         typeof err === "object" &&
         err !== null &&
         "errors" in err &&
-        Array.isArray((err as any).errors)
+        Array.isArray((err as Record<string, unknown>).errors) &&
+        typeof (err as Record<string, any>).errors[0]?.message === "string"
       ) {
-        const clerkError = err as { errors: { message: string }[] };
-        setError(clerkError.errors[0].message);
+        const message = (err as { errors: { message: string }[] }).errors[0]
+          .message;
+        setError(message);
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
