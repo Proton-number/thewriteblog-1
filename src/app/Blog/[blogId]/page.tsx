@@ -2,7 +2,14 @@ import sanityClient from "../../../../Client";
 import SingleBlog from "./singleBlog";
 import type { Post } from "@/types/types";
 
-export default async function BlogPage({ params }: { params: { blogId: string } }) {
+type PageProps = {
+  params: {
+    blogId: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function BlogPage({ params, searchParams }: PageProps) {
   const blogId = params.blogId;
 
   const query = `*[_type == "post" && slug.current == $slug][0] {
