@@ -2,13 +2,14 @@ import sanityClient from "../../../../Client";
 import SingleBlog from "./singleBlog";
 import type { Post } from "@/types/types";
 
+// ✅ Define your expected structure
 type Props = {
   params: {
     blogId: string;
   };
 };
 
-export default async function BlogPage({ params }: Props) {
+const BlogPage = async ({ params }: Props) => {
   const blogId = params.blogId;
 
   const query = `*[_type == "post" && slug.current == $slug][0] {
@@ -46,4 +47,7 @@ export default async function BlogPage({ params }: Props) {
   }
 
   return <SingleBlog singlePost={singlePost} />;
-}
+};
+
+// ✅ This avoids Vercel's internal type conflict while enforcing your own
+export default BlogPage satisfies (props: Props) => Promise<JSX.Element>;
