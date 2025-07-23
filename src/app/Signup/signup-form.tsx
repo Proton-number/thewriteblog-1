@@ -125,13 +125,24 @@ export default function SignUpform() {
       if (
         typeof err === "object" &&
         err !== null &&
-        "errors" in err &&
-        Array.isArray((err as Record<string, unknown>).errors) &&
-        typeof (err as Record<string, any>).errors[0]?.message === "string"
+        "errors" in err
       ) {
-        const message = (err as { errors: { message: string }[] }).errors[0]
-          .message;
-        setError(message);
+        const errors = (err as { errors: unknown }).errors;
+        if (
+          Array.isArray(errors) &&
+          errors.length > 0 &&
+          typeof errors[0] === "object" &&
+          errors[0] !== null &&
+          "message" in errors[0] &&
+          typeof (errors[0] as { message: unknown }).message === "string"
+        ) {
+          const message = (errors[0] as { message: string }).message;
+          setError(message);
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Invalid verification code");
+        }
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
